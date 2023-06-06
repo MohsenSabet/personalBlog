@@ -28,15 +28,15 @@ app.get('/about', (req, res) => {
 });
 
 app.get('/blog', (req, res) => {
-    blogService.getPublishedPosts().then(data => res.json(data)).catch(err => res.json({message: err}));
+    blogService.getPublishedPosts().then(data => res.json(data)).catch(err => res.json({ message: err }));
 });
 
 app.get('/posts', (req, res) => {
-    blogService.getAllPosts().then(data => res.json(data)).catch(err => res.json({message: err}));
+    blogService.getAllPosts().then(data => res.json(data)).catch(err => res.json({ message: err }));
 });
 
 app.get('/categories', (req, res) => {
-    blogService.getCategories().then(data => res.json(data)).catch(err => res.json({message: err}));
+    blogService.getCategories().then(data => res.json(data)).catch(err => res.json({ message: err }));
 });
 
 app.use((req, res) => {
