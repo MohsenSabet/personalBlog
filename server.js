@@ -1,12 +1,11 @@
 /*********************************************************************************
-*  WEB322 – Assignment 02
+*  WEB322 – Assignment 03
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
 *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
 *  Name: Mohsen Sabet Student ID: 113205165 Date: 2023-06-05
 *  Cyclic Web App URL: https://busy-tick-pea-coat.cyclic.app
-*
 *  GitHub Repository URL: https://github.com/MohsenSabet/web322-app.git
 *
 ********************************************************************************/ 
@@ -133,8 +132,35 @@ app.get('/post/:id', (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).send('Page Not Found');
+  res.status(404).send(`
+    <html>
+      <head>
+        <title>Page Not Found</title>
+        <style>
+          body {
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+          }
+
+          img {
+            max-width: 100%;
+            height: auto;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="/404.gif" alt="Page Not Found">
+      </body>
+    </html>
+  `);
 });
+
+
+
 
 blogService.initialize().then(() => {
   app.listen(port, () => console.log(`Express http server listening on port ${port}`));
