@@ -1,3 +1,16 @@
+/*********************************************************************************
+*  WEB322 – Assignment 02
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
+*  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Mohsen Sabet Student ID: 113205165 Date: 2023-06-05
+*  Cyclic Web App URL: https://busy-tick-pea-coat.cyclic.app
+*
+*  GitHub Repository URL: https://github.com/MohsenSabet/web322-app.git
+*
+********************************************************************************/ 
+
 const express = require('express');
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
@@ -20,7 +33,7 @@ cloudinary.config({
 });
 
 // Create the upload variable without disk storage
-const upload = multer(); // no { storage: storage } since we are not using disk storage
+const upload = multer(); 
 
 app.get('/', (req, res) => {
   res.redirect('/about');
