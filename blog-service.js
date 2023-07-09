@@ -7,6 +7,7 @@ function readJsonFile(file) {
   return fs.readFile(`./data/${file}`, 'utf8').then((data) => JSON.parse(data));
 }
 
+
 exports.initialize = function () {
   return Promise.all([readJsonFile('posts.json'), readJsonFile('categories.json')])
     .then((data) => {
@@ -19,16 +20,22 @@ exports.initialize = function () {
 };
 
 exports.getAllPosts = function () {
-  return posts.length ? Promise.resolve(posts) : Promise.reject('No posts found');
+  return new Promise((resolve, reject) => {
+  posts.length ? resolve(posts) : reject('No posts found');
+  })
 };
 
 exports.getPublishedPosts = function () {
+  return new Promise((resolve, reject) => {
   const publishedPosts = posts.filter((post) => post.published);
-  return publishedPosts.length ? Promise.resolve(publishedPosts) : Promise.reject('No published posts found');
+  publishedPosts.length ? resolve(publishedPosts) : reject('No published posts found');
+  })
 };
 
 exports.getCategories = function () {
-  return categories.length ? Promise.resolve(categories) : Promise.reject('No categories found');
+  return new Promise((resolve, reject) => {
+  categories.length ? resolve(categories) : reject('No categories found');
+  })
 };
 
 exports.addPost = function (postData) {
@@ -47,17 +54,38 @@ exports.addPost = function (postData) {
 };
 
 exports.getPostsByCategory = function (category) {
-  const filteredPosts = posts.filter((post) => post.category === category);
-  return filteredPosts.length ? Promise.resolve(filteredPosts) : Promise.reject('No results returned');
+  return new Promise((resolve, reject) => {
+  const filteredPosts = posts.filter((post) => post.category == category);
+  filteredPosts.length ? resolve(filteredPosts) : reject('No results returned');
+})
+};
+
+exports.getPublishedPostsByCategory = function (category) {
+  return new Promise((resolve, reject) => {
+  const publishedPosts = posts.filter((post) => post.published && post.category == category);
+  publishedPosts.length ? resolve(publishedPosts) : reject('No published posts found in this category');
+  })
 };
 
 exports.getPostsByMinDate = function (minDateStr) {
+  
   const minDate = new Date(minDateStr);
   const filteredPosts = posts.filter((post) => new Date(post.postDate) >= minDate);
   return filteredPosts.length ? Promise.resolve(filteredPosts) : Promise.reject('No results returned');
 };
 
 exports.getPostById = function (id) {
-  const post = posts.find((post) => post.id === id);
-  return post ? Promise.resolve(post) : Promise.reject('No result returned');
+  return new Promise((resolve, reject) => {
+    const post = posts.find((post) => post.id == id);
+    post ? resolve(post) : reject("no result returned")
+  })
+};
+
+
+function addPost(postData) {
+  return new Promise((resolve, reject) => {
+    const date = new Date();
+    postData.postDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; 
+    posts.push(postData);
+  })
 };
