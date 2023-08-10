@@ -1,0 +1,19 @@
+<div class="container" style="padding-top:60px">
+    <!-- Display the error message if any -->
+    {{#if errorMessage}}
+    <div class="alert alert-danger">
+        <strong>Error:</strong> {{errorMessage}}
+    </div>
+    {{/if}}
+
+    <!-- Login Form -->
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <input type="text" class="form-control" id="userName" name="userName" placeholder="User Name" required value="{{userName}}">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>

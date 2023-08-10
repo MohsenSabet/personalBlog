@@ -4,12 +4,12 @@
     {{#if data.post}}
     <article>
       <h2>{{data.post.title}}</h2>
-      <img src="{{data.post.featureImage}}" alt="feature image" style="width:100%"/>
+     <img src="{{data.post.featureImage}}" alt="feature image" style="width:auto; height:500px"/>
       <br /><br />
       {{{data.post.body}}}
       <br /><br />
       <strong>Category:</strong> {{data.post.category}}<br />
-      <strong>Last Updated:</strong> {{data.post.postDate}}
+      <strong>Last Updated:</strong> {{#formatDate data.post.postDate}}{{/formatDate}}
     </article>
     {{else}}
     <div class="col-md-12 text-center">

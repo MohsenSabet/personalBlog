@@ -22,8 +22,8 @@
                             <tr>
                                 <td>{{this.id}}</td>
                                 <td>{{this.title}}</td>
-                                <td>{{this.postDate}}</td>
-                                <td><a href="/posts?category={{this.post.category}}">{{this.category}}</a></td>
+                                <td>{{#formatDate this.postDate}}{{/formatDate}}</td>
+                                <td><a href="/posts?category={{this.category}}">{{this.category}}</a></td>
                                 <td>{{this.published}}</td>
                                 <td>
                                     <!-- Remove button -->

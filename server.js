@@ -1,20 +1,19 @@
 /*********************************************************************************
-*  WEB322 – Assignment 05
+*  WEB322 – Assignment 06
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
 *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Mohsen Sabet Student ID: 113205165 Date: 2023-07-26
+*  Name: Mohsen Sabet Student ID: 113205165 Date: 2023-08-10
 *  Cyclic Web App URL: https://busy-tick-pea-coat.cyclic.app
 *  GitHub Repository URL: https://github.com/MohsenSabet/web322-app.git
 *
-********************************************************************************/ 
-
+*********************************************************************************/ 
+const authData = require('./auth-service.js');
 const express = require('express');
 const app = express();
 const blogService = require('./blog-service');
 const path = require('path');
-
 const exphbs  = require('express-handlebars');
 
 const stripJs = require('strip-js');
@@ -23,6 +22,8 @@ const hbs = require('hbs');
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+const clientSessions = require("client-sessions");
+const HTTP_PORT = process.env.PORT || 8080;
 
 
 app.engine('.hbs', exphbs.engine({
@@ -41,6 +42,12 @@ app.engine('.hbs', exphbs.engine({
       } else {
         return options.fn(this);
       }
+    },
+    formatDate: function(dateObj) {
+      let year = dateObj.getFullYear();
+      let month = (dateObj.getMonth() + 1).toString();
+      let day = dateObj.getDate().toString();
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
     }
   }
 }));
@@ -72,6 +79,27 @@ app.use(function(req, res, next) {
   app.locals.viewingCategory = req.query.category;
   next();
 });
+
+app.use(clientSessions({
+  cookieName: "session",  // this is the object name that will be added to 'req'
+  secret: "some_random_string",  // this should be a long random string
+  duration: 15 * 60 * 1000, // duration of the session in milliseconds (15 minutes)
+  activeDuration: 5 * 60 * 1000 // the session will be extended by this many ms each request (5 minutes)
+}));
+
+app.use(function(req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
+
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
+
 
 app.get('/', (req, res) => {
   res.redirect('/blog');
@@ -180,24 +208,57 @@ app.get('/blog/:id', async (req, res) => {
 });
 
 
-app.get('/posts', function(req, res) {
-  blogService.getAllPosts()
-      .then((data) => {
-          if (data.length > 0) {
-              res.render("posts", {posts: data});
-          } else {
+app.get('/posts', ensureLogin, function(req, res) {
+  // Check if the category query parameter is present
+  if (req.query.category) {
+      blogService.getPostsByCategory(req.query.category)
+          .then((data) => {
+              if (data.length > 0) {
+                  res.render("posts", {posts: data});
+              } else {
+                  res.render("posts", {message: "no results"});
+              }
+          })
+          .catch((err) => {
+              console.error(err);
               res.render("posts", {message: "no results"});
-          }
-      })
-      .catch((err) => {
-          res.render("posts", {message: err});
-      });
+          });
+  }
+  // Check if the minDate query parameter is present
+  else if (req.query.minDate) {
+      blogService.getPostsByMinDate(req.query.minDate)
+          .then((data) => {
+              if (data.length > 0) {
+                  res.render("posts", {posts: data});
+              } else {
+                  res.render("posts", {message: "no results"});
+              }
+          })
+          .catch((err) => {
+              console.error(err);
+              res.render("posts", {message: "no results"});
+          });
+  }
+  // If no query parameters are present, get all posts
+  else {
+      blogService.getAllPosts()
+          .then((data) => {
+              if (data.length > 0) {
+                  res.render("posts", {posts: data});
+              } else {
+                  res.render("posts", {message: "no results"});
+              }
+          })
+          .catch((err) => {
+              console.error(err);
+              res.render("posts", {message: "no results"});
+          });
+  }
 });
 
 
 
-
-app.get("/categories", (req, res) => {
+app.get("/categories", ensureLogin, (req, res) => {
   blogService.getCategories().then((data) => {
       if (data.length > 0) {
           res.render("categories", { categories: data });
@@ -212,7 +273,7 @@ app.get("/categories", (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 
 
-app.get('/posts/add', (req, res) => {
+app.get('/posts/add', ensureLogin, (req, res) => {
   blogService.getCategories().then(data => {
       res.render('addPost', { categories: data });
   }).catch(error => {
@@ -223,7 +284,8 @@ app.get('/posts/add', (req, res) => {
 
 
 // Add the "Post" route
-app.post('/posts/add', upload.single('featureImage'), (req, res) => {
+app.post('/posts/add', ensureLogin, upload.single('featureImage'), (req, res) => {
+  console.log('Request body:', req.body);
   if (req.file) {
     let streamUpload = (req) => {
       return new Promise((resolve, reject) => {
@@ -256,12 +318,12 @@ app.post('/posts/add', upload.single('featureImage'), (req, res) => {
   function processPost(imageUrl) {
     const postData = {
       title: req.body.title,
-      content: req.body.content,
+      body: req.body.body,
       featureImage: imageUrl,
       published: req.body.published === 'on',
       category: req.body.category,
     };
-
+    
     blogService.addPost(postData)
       .then((savedPost) => {
         res.redirect('/posts');
@@ -273,11 +335,11 @@ app.post('/posts/add', upload.single('featureImage'), (req, res) => {
   }
 });
 
-app.get("/categories/add", function(req, res) {
+app.get("/categories/add", ensureLogin, function(req, res) {
   res.render("addCategory");
 });
 
-app.post("/categories/add", function(req, res) {
+app.post("/categories/add", ensureLogin, function(req, res) {
   blogService.addCategory(req.body)
       .then(() => {
           res.redirect("/categories");
@@ -287,7 +349,7 @@ app.post("/categories/add", function(req, res) {
       });
 });
 
-app.get("/categories/delete/:id", function(req, res) {
+app.get("/categories/delete/:id", ensureLogin, function(req, res) {
   blogService.deleteCategoryById(req.params.id)
       .then(() => {
           res.redirect("/categories");
@@ -298,7 +360,7 @@ app.get("/categories/delete/:id", function(req, res) {
       });
 });
 
-app.get("/posts/delete/:id", function(req, res) {
+app.get("/posts/delete/:id", ensureLogin, function(req, res) {
   const postId = req.params.id;
 
   blogService.deletePostById(postId)
@@ -312,10 +374,72 @@ app.get("/posts/delete/:id", function(req, res) {
 });
 
 
+
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', (req, res) => {
+  req.body.userAgent = req.get('User-Agent');
+
+  authData.checkUser(req.body)
+  .then(user => {
+      req.session.user = {
+          userName: user.userName, // Assuming 'user' has a 'userName' property
+          email: user.email,       // Assuming 'user' has an 'email' property
+          loginHistory: user.loginHistory // Assuming 'user' has a 'loginHistory' property
+      }
+      res.redirect('/posts');
+  })
+  .catch(err => {
+      res.render('login', {
+          errorMessage: err,
+          userName: req.body.userName
+      });
+  });
+});
+
+
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+
+app.post('/register', (req, res) => {
+  authData.registerUser(req.body)
+  .then(() => {
+      res.render('register', {successMessage: "User created"});
+  })
+  .catch(err => {
+      res.render('register', {
+          errorMessage: err,
+          userName: req.body.userName
+      });
+  });
+});
+
+app.get('/logout', (req, res) => {
+  // Assuming you use `express-session` and the session is stored in `req.session`
+  req.session.reset(); // This might vary depending on your setup
+  res.redirect('/');
+});
+
+app.get('/userHistory', ensureLogin, (req, res) => {
+  res.render('userHistory');
+});
+
+
 app.use(function (req, res, next) {
   res.status(404).render('404');
 });
 
-blogService.initialize().then(() => {
-  app.listen(port, () => console.log(`Express http server listening on port ${port}`));
-}).catch(err => console.error(`Error initializing blog service: ${err}`));
+
+blogService.initialize()
+.then(authData.initialize)
+.then(function(){
+    app.listen(HTTP_PORT, function(){
+        console.log("app listening on: " + HTTP_PORT)
+    });
+}).catch(function(err){
+    console.log("unable to start server: " + err);
+});
