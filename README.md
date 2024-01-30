@@ -1,4 +1,4 @@
-# Blog Web Application
+# Blog Web Application (https://mohsen-personal-blog.onrender.com/blog)
 
 ## Project Overview
 This Blog Web Application is a culmination of the skills and knowledge acquired during the WEB322 course. It demonstrates proficiency in both front-end and back-end web development, showcasing abilities in user interaction and data management.
@@ -37,7 +37,7 @@ This Blog Web Application is a culmination of the skills and knowledge acquired 
 - Enhancing the UI/UX design for a more interactive experience.
 
 ## Contact Information
-[Mohsen Sabet]
+Mohsen Sabet
 [Mohsen.sabet@hotmail.com]
 
 ---
