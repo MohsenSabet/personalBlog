@@ -1,4 +1,4 @@
-# Blog Web Application (https://mohsen-personal-blog.onrender.com/blog)
+# Blog Web Application
 
 ## Project Overview
 This Blog Web Application is a culmination of the skills and knowledge acquired during the WEB322 course. It demonstrates proficiency in both front-end and back-end web development, showcasing abilities in user interaction and data management.
