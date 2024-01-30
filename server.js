@@ -1,13 +1,12 @@
 /*********************************************************************************
-*  WEB322 – Assignment 06
-*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
-*  of this assignment has been copied manually or electronically from any other source 
-*  (including 3rd party web sites) or distributed to other students.
+*  Web Programming Tools and Frameworks project
+* Server.js
+* Entry point for the Blog Web Application.
 * 
-*  Name: Mohsen Sabet Student ID: 113205165 Date: 2023-08-10
-*  Cyclic Web App URL: https://busy-tick-pea-coat.cyclic.app
-*  GitHub Repository URL: https://github.com/MohsenSabet/web322-app.git
-*
+* This module initializes and starts the Express server, setting up routes,
+* middleware, and database connections necessary for the application.
+* 
+*  Author: Mohsen Sabet
 *********************************************************************************/ 
 const authData = require('./auth-service.js');
 const express = require('express');
