@@ -1,14 +1,21 @@
 const Sequelize = require('sequelize');
+require('dotenv').config();
 
-var sequelize = new Sequelize('bkohwkru', 'bkohwkru', 'ymSZvGKiNtsex-o-syRhDr0jpioPSLea', {
-    host: 'tyke.db.elephantsql.com',
+var sequelize = new Sequelize(
+  process.env.PGDATABASE,
+  process.env.PGUSER,
+  process.env.PGPASSWORD,
+  {
+    logging: false,
+    host: process.env.PGHOST,
     dialect: 'postgres',
     port: 5432,
     dialectOptions: {
-        ssl: { rejectUnauthorized: false }
+      ssl: { rejectUnauthorized: false }
     },
     query: { raw: true }
-});
+  }
+);
 
 var Category = sequelize.define('Category', {
     category: Sequelize.STRING
