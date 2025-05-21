@@ -23,7 +23,14 @@ let User; // to be defined on new connection (see initialize)
 
 module.exports.initialize = function () {
     return new Promise(function (resolve, reject) {
-        let db = mongoose.createConnection(process.env.MONGO_URI);
+        // Connect to MongoDB with TLS options for Atlas compatibility
+        let db = mongoose.createConnection(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            tls: true,
+            // Allow invalid certificates if necessary (disable in production if you have proper certs)
+            tlsAllowInvalidCertificates: true
+        });
 
         db.on('error', (err)=>{
             reject(err); // reject the promise with the provided error
